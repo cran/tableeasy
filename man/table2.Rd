@@ -7,10 +7,10 @@
 table2(
   x,
   y,
-  y_time,
-  strata,
-  adj,
   data,
+  y_time = NULL,
+  strata = NULL,
+  adj = c(),
   div = list(),
   div_num = list(),
   ref = c(),
@@ -26,15 +26,15 @@ table2(
 
 \item{y}{A string. The dependent variable to be summarized given as a string.}
 
+\item{data}{A data frame in which these variables exist.}
+
 \item{y_time}{A string. The survival time variable to be summarized given as a string. It only works when \code{method = "cox"}.}
 
 \item{strata}{A string. The paired variable to be summarized given as a string. It only works when \code{method = "con_logistic"}.}
 
-\item{adj}{A vector of strings, moderator variables to be summarized given as a character vector.}
+\item{adj}{A vector of strings, default = \code{c()}. Moderator variables to be summarized given as a character vector.}
 
-\item{data}{A data frame in which these variables exist.}
-
-\item{div}{A list containing Positive int greater than 1 or integer vector, If it is a positive integer greater than 1, it is the number of factor levels when x is split by quantile statistics. If it is a vector of integers, it is the strategy of grouping x by quantile statistics and then merging groups.}
+\item{div}{A list containing Positive int greater than 1 or integer vector, If a positive integer greater than 1, it is the number of factor levels when x is split by quantile statistics. If a vector of integers, it is the strategy of grouping x by quantile statistics and then merging groups.}
 
 \item{div_num}{A list containing numeric vectors, Elements in the list are custom values, and x can be split into at least two levels by elements in the list.}
 
@@ -42,7 +42,7 @@ table2(
 
 \item{ref_num}{A vector of integers. The control level of factor levels when x is split by custom values.}
 
-\item{continuous}{Bool, default \code{= FALSE}.}
+\item{continuous}{Bool, default \code{= FALSE}. If default, then does not output the result when the independent variable is regarded as a continuous variable.}
 
 \item{case}{A vector of integers, default \code{= 2}. The case level of y.}
 
@@ -75,7 +75,7 @@ adj_pbc <- c('age','alk.phos','ast')
 
 ## General linear regression:
 table2(x = 'albumin', y = 'bili',
-       adj = adj_pbc, data = pbc_full,
+       adj = c(), data = pbc_full,
        div = list(5,c(2,3)), div_num = list(c(3.2,4)),
        ref = c(2,1), ref_num = c(2),
        outformat = 2)

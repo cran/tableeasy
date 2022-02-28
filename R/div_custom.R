@@ -1,5 +1,5 @@
 #' Split a Variable by Custom Values
-#' @description Split a continuous variable by custom values, Converts a continuous variable to a categorical variable.
+#' @description Split a continuous variable by custom values. Converts a continuous variable to a categorical variable.
 #' @param var A string. A variable to be summarized given as a string.
 #' @param div A numeric vector. The variable can be split into at least two levels by custom values.
 #' @param data A data frame in which these variables exist.

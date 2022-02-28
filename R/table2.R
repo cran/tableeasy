@@ -2,15 +2,15 @@
 #' @description ' Table 2 ' was created through regression analysis to research influence factor. The four regression methods include general linear regression, logistic regression, conditional logistic regression and cox proportional hazards regression.
 #' @param x A string. The independent variable to be summarized given as a string.
 #' @param y A string. The dependent variable to be summarized given as a string.
+#' @param data A data frame in which these variables exist.
 #' @param y_time A string. The survival time variable to be summarized given as a string. It only works when \code{method = "cox"}.
 #' @param strata A string. The paired variable to be summarized given as a string. It only works when \code{method = "con_logistic"}.
-#' @param adj A vector of strings, moderator variables to be summarized given as a character vector.
-#' @param data A data frame in which these variables exist.
-#' @param div A list containing Positive int greater than 1 or integer vector, If it is a positive integer greater than 1, it is the number of factor levels when x is split by quantile statistics. If it is a vector of integers, it is the strategy of grouping x by quantile statistics and then merging groups.
+#' @param adj A vector of strings, default = \code{c()}. Moderator variables to be summarized given as a character vector.
+#' @param div A list containing Positive int greater than 1 or integer vector, If a positive integer greater than 1, it is the number of factor levels when x is split by quantile statistics. If a vector of integers, it is the strategy of grouping x by quantile statistics and then merging groups.
 #' @param div_num A list containing numeric vectors, Elements in the list are custom values, and x can be split into at least two levels by elements in the list.
 #' @param ref A vector of integers. The control level of factor levels when x is split by quantile statistics.
 #' @param ref_num A vector of integers. The control level of factor levels when x is split by custom values.
-#' @param continuous Bool, default \code{= FALSE}.
+#' @param continuous Bool, default \code{= FALSE}. If default, then does not output the result when the independent variable is regarded as a continuous variable.
 #' @param case A vector of integers, default \code{= 2}. The case level of y.
 #' @param method (\code{"general"}, \code{"logistic"}, \code{"con_logistic"}, \code{"cox"}), default \code{= "general"}.
 #' @param outformat \code{1} or \code{2}, default \code{= 2}, Output format. It only works when \code{method = "general"}. The table ouput mean(sd) when \code{outformat=1} and ouput median(IQR) when \code{outformat=2}.
@@ -36,7 +36,7 @@
 #'
 #' ## General linear regression:
 #' table2(x = 'albumin', y = 'bili',
-#'        adj = adj_pbc, data = pbc_full,
+#'        adj = c(), data = pbc_full,
 #'        div = list(5,c(2,3)), div_num = list(c(3.2,4)),
 #'        ref = c(2,1), ref_num = c(2),
 #'        outformat = 2)
@@ -59,19 +59,21 @@
 #'        div = list(5,c(2,3)),
 #'        method = 'cox')
 
-table2<-function(x,y,y_time,strata,adj,data,div=list(),div_num=list(),ref=c(),ref_num=c(),continuous=FALSE,case=2,method='general',outformat=2){
+table2<-function(x,y,data,y_time=NULL,strata=NULL,adj=c(),div=list(),div_num=list(),ref=c(),ref_num=c(),continuous=FALSE,case=2,method='general',outformat=2){
   ### Padding of ref and ref_num
   ref1_padding<-ifelse(length(div)-length(ref)==0,1,length(div)-length(ref))
   ref2_padding<-ifelse(length(div_num)-length(ref_num)==0,1,length(div_num)-length(ref_num))
   ref1<-c(ref,rep(1,ref1_padding))#padding
   ref2<-c(ref_num,rep(1,ref2_padding))#padding
+  #Make sure adj different from x, y
+  adj1<-setdiff(adj, c(x, y,y_time,strata))
   if(is.factor(data[,x])){
     ###x is factor###
     data[,x]<-stats::relevel(data[,x], ref=levels(data[,x])[ref1[1]])
-    if(method=='general'){divdata<-general(x=x, y=y, adj=adj, data=data)
-    }else if(method=='logistic'){divdata<-logistic(x=x, y=y, adj=adj, data=data,case=case)
-    }else if(method=='con_logistic'){divdata<-con_logistic(x=x, y=y, strata=strata, adj=adj, data=data,case=case)
-    }else if(method=='cox'){divdata<-cox(x=x, y_time=y_time, y_factor=y, adj=adj, data=data,case=case)}
+    if(method=='general'){divdata<-general(x=x, y=y, adj=adj1, data=data)
+    }else if(method=='logistic'){divdata<-logistic(x=x, y=y, adj=adj1, data=data,case=case)
+    }else if(method=='con_logistic'){divdata<-con_logistic(x=x, y=y, strata=strata, adj=adj1, data=data,case=case)
+    }else if(method=='cox'){divdata<-cox(x=x, y_time=y_time, y_factor=y, adj=adj1, data=data,case=case)}
     divdata<-rbind('',divdata)#Add a blank line
     #Row names
     rownames(divdata)<-c(x,levels(data[,x]),'p for trend')
@@ -79,19 +81,19 @@ table2<-function(x,y,y_time,strata,adj,data,div=list(),div_num=list(),ref=c(),re
   }
   ###x is continuous###
   else {
-    if(method=='general'){con<-general(x=x, y=y, adj=adj, data=data)
-    }else if(method=='logistic'){con<-logistic(x, y, adj=adj, data,case=case)
-    }else if(method=='con_logistic'){con<-con_logistic(x=x, y=y, strata=strata,adj=adj, data=data,case=case)
-    }else if(method=='cox'){con<-cox(x=x, y_time=y_time, y_factor=y,adj=adj, data=data,case=case)}
+    if(method=='general'){con<-general(x=x, y=y, adj=adj1, data=data)
+    }else if(method=='logistic'){con<-logistic(x, y, adj=adj1, data,case=case)
+    }else if(method=='con_logistic'){con<-con_logistic(x=x, y=y, strata=strata,adj=adj1, data=data,case=case)
+    }else if(method=='cox'){con<-cox(x=x, y_time=y_time, y_factor=y,adj=adj1, data=data,case=case)}
     output<-con
 
     ### If length of div and length of div_num both equal 0,then we think x is factor
     if(length(div)==0 && length(div_num)==0){
       data[,x]<-stats::relevel(data[,x], ref=levels(data[,x])[ref1[1]])
-      if(method=='general'){divdata<-general(x=x, y=y, adj=adj, data=data)
-      }else if(method=='logistic'){divdata<-logistic(x=x, y=y, adj=adj, data=data,case=case)
-      }else if(method=='con_logistic'){divdata<-con_logistic(x=x, y=y, strata=strata, adj=adj, data=data,case=case)
-      }else if(method=='cox'){divdata<-cox(x=x, y_time=y_time, y_factor=y, adj=adj, data=data,case=case)}
+      if(method=='general'){divdata<-general(x=x, y=y, adj=adj1, data=data)
+      }else if(method=='logistic'){divdata<-logistic(x=x, y=y, adj=adj1, data=data,case=case)
+      }else if(method=='con_logistic'){divdata<-con_logistic(x=x, y=y, strata=strata, adj=adj1, data=data,case=case)
+      }else if(method=='cox'){divdata<-cox(x=x, y_time=y_time, y_factor=y, adj=adj1, data=data,case=case)}
       divdata<-rbind('',divdata)#Add a blank line
       #Row names
       rownames(divdata)<-c(x,levels(data[,x]),'p for trend')
@@ -107,10 +109,10 @@ table2<-function(x,y,y_time,strata,adj,data,div=list(),div_num=list(),ref=c(),re
           newdata<-data.frame(data,newcol=newcol)
           newdata$newcol<-factor(newdata$newcol)
           newdata$newcol<-stats::relevel(newdata$newcol, ref=levels(newdata$newcol)[ref1[i]])
-          if(method=='general'){divdata<-general(x='newcol', y=y, adj=adj, data=newdata)
-          }else if(method=='logistic'){divdata<-logistic(x='newcol', y, adj=adj, newdata,case=case)
-          }else if(method=='con_logistic'){divdata<-con_logistic(x='newcol', y=y,strata=strata, adj=adj, data=newdata,case=case)
-          }else if(method=='cox'){divdata<-cox(x='newcol', y_time=y_time, y_factor=y, adj=adj, data=newdata,case=case)}
+          if(method=='general'){divdata<-general(x='newcol', y=y, adj=adj1, data=newdata)
+          }else if(method=='logistic'){divdata<-logistic(x='newcol', y, adj=adj1, newdata,case=case)
+          }else if(method=='con_logistic'){divdata<-con_logistic(x='newcol', y=y,strata=strata, adj=adj1, data=newdata,case=case)
+          }else if(method=='cox'){divdata<-cox(x='newcol', y_time=y_time, y_factor=y, adj=adj1, data=newdata,case=case)}
           #Row names
           divdata<-rbind('',divdata)#Add a blank line
           rownames(divdata)<-div_quantile_name('newcol',n1,newdata)
@@ -125,10 +127,10 @@ table2<-function(x,y,y_time,strata,adj,data,div=list(),div_num=list(),ref=c(),re
           newdata<-data.frame(data,newcol=newcol)
           newdata$newcol<-factor(newdata$newcol)
           newdata$newcol<-stats::relevel(newdata$newcol, ref=levels(newdata$newcol)[ref2[i]])
-          if(method=='general'){divdata<-general(x='newcol', y, adj=adj, newdata)
-          }else if(method=='logistic'){divdata<-logistic(x='newcol', y, adj=adj, newdata,case=case)
-          }else if(method=='con_logistic'){divdata<-con_logistic(x='newcol', y, strata=strata,adj=adj, newdata,case=case)
-          }else if(method=='cox'){divdata<-cox(x='newcol', y_time=y_time, y_factor=y, adj=adj, newdata,case=case)}
+          if(method=='general'){divdata<-general(x='newcol', y, adj=adj1, newdata)
+          }else if(method=='logistic'){divdata<-logistic(x='newcol', y, adj=adj1, newdata,case=case)
+          }else if(method=='con_logistic'){divdata<-con_logistic(x='newcol', y, strata=strata,adj=adj1, newdata,case=case)
+          }else if(method=='cox'){divdata<-cox(x='newcol', y_time=y_time, y_factor=y, adj=adj1, newdata,case=case)}
           #Row names
           divdata<-rbind('',divdata)#Add a blank line
           rownames(divdata)<-c(x,div_custom_name('newcol',n2,newdata))

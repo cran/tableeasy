@@ -17,7 +17,7 @@ div_custom(var, div, data)
 A factor variable.
 }
 \description{
-Split a continuous variable by custom values, Converts a continuous variable to a categorical variable.
+Split a continuous variable by custom values. Converts a continuous variable to a categorical variable.
 }
 \examples{
 ## Load Mayo Clinic Primary Biliary Cirrhosis Data

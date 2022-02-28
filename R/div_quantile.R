@@ -1,7 +1,7 @@
 #' @title Split a Variable by Quantile Statistics
-#' @description Split a continuous variable by quantile statistics, Converts a continuous variable to a categorical variable.
+#' @description Split a continuous variable by quantile statistics. Converts a continuous variable to a categorical variable.
 #' @param var A string. A variable to be summarized given as a string.
-#' @param div A positive integer greater than 1. The number of factor levels when the variable is split by quantile statistics.
+#' @param div A positive integer greater than 1 or a vector of integers. If a positive integer greater than 1, it is the number of factor levels when the variable is split by quantile statistics. If a vector of integers, it is the strategy of grouping x by quantile statistics and then merging groups.
 #' @param data A data frame in which these variables exist.
 #'
 #' @return A factor variable.
@@ -15,6 +15,7 @@
 #' head(pbc)
 #' ##
 #' div_quantile(var = 'age', div = 5, data = pbc)
+#' div_quantile(var = 'age', div = c(2,3), data = pbc)
 div_quantile <- function(var,div,data){
   x<-data[,var]
   len_div<-length(div)

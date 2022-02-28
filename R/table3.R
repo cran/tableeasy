@@ -2,11 +2,11 @@
 #' @description Creates 'Table 3' which is about stratified analysis. The three regression methods include general linear regression, logistic regression and cox proportional hazards regression.
 #' @param x A string. The independent variable to be summarized given as a string.
 #' @param y A string. The dependent variable to be summarized given as a string.
-#' @param y_time A string. The survival time variable to be summarized given as a string. It only works when \code{method = "cox"}.
-#' @param adj A vector of strings. Moderator variables to be summarized given as a character vector.
 #' @param data A data frame in which these variables exist.
 #' @param split_var A vector of strings. Strata variables to be summarized given as a character vector.
-#' @param split_div A list containing numeric vectors, default \code{= list()}.
+#' @param y_time A string. The survival time variable to be summarized given as a string. It only works when \code{method = "cox"}.
+#' @param adj A vector of strings, default = \code{c()}. Moderator variables to be summarized given as a character vector.
+#' @param split_div A list containing numeric vectors or a vector of integers that are summarized given as a string, default \code{= list()}. If default, it represents the strata variables are split by median or it is itself a categorical variable. If the element of list is a numeric vector, it represents the strata variables are split by custom values. And if the element of list is a vector of integers that are summarized given as a string, it represents the strata variables are split by quantile statistics.
 #' @param outformat \code{1} or \code{2} or \code{3} or \code{4}, default \code{= 4}. Output format.
 #' @param method (\code{"general"}, \code{"logistic"}, \code{"cox"}), default \code{= "general"}.
 #'
@@ -34,14 +34,14 @@
 #'
 #' ## General linear regression:
 #' table3(x = 'albumin_2', y = 'bili',
-#'        adj = adj_pbc, data = pbc_full,
+#'        adj = c(), data = pbc_full,
 #'        split_var = c('age','alk.phos','ast','trt'), split_div = list(),
 #'        outformat = 1)
 #'
 #' ## Logistic regression:
 #' table3(x = 'albumin_2', y = 'status',
 #'        adj = adj_pbc, data = pbc_full,
-#'        split_var = c('age','alk.phos','ast','trt'), split_div = list(c(45)),
+#'        split_var = c('age','alk.phos','ast','trt'), split_div = list(c('2','3'),c('3')),
 #'        outformat = 2,method = 'logistic')
 #'
 #' ## Cox proportional hazards regression:
@@ -50,7 +50,7 @@
 #'        split_var = c('age','alk.phos','ast','trt'), split_div = list(c(45),c(1500,1700),c(),c()),
 #'        outformat = 3,method = 'cox')
 
-table3<-function(x,y,y_time,adj,data,split_var,split_div=c(),outformat=4,method='general'){
+table3<-function(x,y,data,split_var,y_time=NULL,adj=c(),split_div=list(),outformat=4,method='general'){
   xx<-data[,x]
   j_len<-ifelse(length(levels(xx))==0,2,length(levels(xx)))
   table3_data<-data.frame()
@@ -145,21 +145,21 @@ table3<-function(x,y,y_time,adj,data,split_var,split_div=c(),outformat=4,method=
       na<-casepercent[1]
       for(i in 1:length(casepercent)){
         if (all.equal(casepercent[i],na)==TRUE){casepercent[i]=NA}
-        }
+      }
       tabletext<-cbind(c("Subgroup",rownames(table3_data)),
                        c("N",number),
                        c("Events(%)",casepercent))
-      }
+    }
     else if(outformat==2){
       #Integrate case with control
       casecontrol<-paste0(table3_data$Case,'/',table3_data$Control)
       na<-casecontrol[1]
       for(i in 1:length(casecontrol)){
         if (all.equal(casecontrol[i],na)==TRUE){casecontrol[i]=NA}
-        }
+      }
       tabletext<-cbind(c("Subgroup",rownames(table3_data)),
                        c("Cases/Controls",casecontrol))
-      }
+    }
     else if(outformat==3){
       tabletext<-c("Subgroup",rownames(table3_data))
       #Integrate case with control one by one
@@ -173,11 +173,11 @@ table3<-function(x,y,y_time,adj,data,split_var,split_div=c(),outformat=4,method=
         na<-casepercent1[1]
         for(i in 1:length(casepercent1)){
           if (all.equal(casepercent1[i],na)==TRUE){casepercent1[i]=NA}
-          }
+        }
         tabletext<-cbind(tabletext,
                          c(paste0('N','(',levels(data[,x])[j],')'),number1),
                          c(paste0('Event(%)','(',levels(data[,x])[j],')'),casepercent1))
-        }
+      }
     }
     else if(outformat==4){
       tabletext<-c("Subgroup",rownames(table3_data))
@@ -204,7 +204,8 @@ table3<-function(x,y,y_time,adj,data,split_var,split_div=c(),outformat=4,method=
         if (all.equal(or_ci[i],na)==TRUE){or_ci[i]=NA}
       }
       tabletext<-cbind(tabletext,
-                       c(paste0("OR(95%CI)_",j,'(',levels(data[,x])[j],')'),or_ci))
+                       c(paste0("OR(95%CI)_",j,'(',levels(data[,x])[j],')'),or_ci),
+                       c(paste0("p_value_",j),table3_data[,paste0('p_value',j)]))
     }
   }else if(method=='cox'){
     for(j in 2:j_len){
@@ -216,7 +217,8 @@ table3<-function(x,y,y_time,adj,data,split_var,split_div=c(),outformat=4,method=
         if (all.equal(or_ci[i],na)==TRUE){or_ci[i]=NA}
       }
       tabletext<-cbind(tabletext,
-                       c(paste0("HR(95%CI)_",j,'(',levels(data[,x])[j],')'),or_ci))
+                       c(paste0("HR(95%CI)_",j,'(',levels(data[,x])[j],')'),or_ci),
+                       c(paste0("p_value_",j),table3_data[,paste0('p_value',j)]))
     }
   }else if(method=='general'){
     for(j in 2:j_len){
@@ -228,7 +230,8 @@ table3<-function(x,y,y_time,adj,data,split_var,split_div=c(),outformat=4,method=
         if (all.equal(or_ci[i],na)==TRUE){or_ci[i]=NA}
       }
       tabletext<-cbind(tabletext,
-                       c(paste0("beta(95%CI)_",j,'(',levels(data[,x])[j],')'),or_ci))
+                       c(paste0("beta(95%CI)_",j,'(',levels(data[,x])[j],')'),or_ci),
+                       c(paste0("p_value_",j),table3_data[,paste0('p_value',j)]))
     }
   }
   tabletext<-cbind(tabletext,

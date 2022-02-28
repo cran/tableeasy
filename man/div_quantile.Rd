@@ -9,7 +9,7 @@ div_quantile(var, div, data)
 \arguments{
 \item{var}{A string. A variable to be summarized given as a string.}
 
-\item{div}{A positive integer greater than 1. The number of factor levels when the variable is split by quantile statistics.}
+\item{div}{A positive integer greater than 1 or a vector of integers. If a positive integer greater than 1, it is the number of factor levels when the variable is split by quantile statistics. If a vector of integers, it is the strategy of grouping x by quantile statistics and then merging groups.}
 
 \item{data}{A data frame in which these variables exist.}
 }
@@ -17,7 +17,7 @@ div_quantile(var, div, data)
 A factor variable.
 }
 \description{
-Split a continuous variable by quantile statistics, Converts a continuous variable to a categorical variable.
+Split a continuous variable by quantile statistics. Converts a continuous variable to a categorical variable.
 }
 \examples{
 ## Load Mayo Clinic Primary Biliary Cirrhosis Data
@@ -28,4 +28,5 @@ data(pbc)
 head(pbc)
 ##
 div_quantile(var = 'age', div = 5, data = pbc)
+div_quantile(var = 'age', div = c(2,3), data = pbc)
 }

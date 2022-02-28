@@ -7,11 +7,11 @@
 table3(
   x,
   y,
-  y_time,
-  adj,
   data,
   split_var,
-  split_div = c(),
+  y_time = NULL,
+  adj = c(),
+  split_div = list(),
   outformat = 4,
   method = "general"
 )
@@ -21,15 +21,15 @@ table3(
 
 \item{y}{A string. The dependent variable to be summarized given as a string.}
 
-\item{y_time}{A string. The survival time variable to be summarized given as a string. It only works when \code{method = "cox"}.}
-
-\item{adj}{A vector of strings. Moderator variables to be summarized given as a character vector.}
-
 \item{data}{A data frame in which these variables exist.}
 
 \item{split_var}{A vector of strings. Strata variables to be summarized given as a character vector.}
 
-\item{split_div}{A list containing numeric vectors, default \code{= list()}.}
+\item{y_time}{A string. The survival time variable to be summarized given as a string. It only works when \code{method = "cox"}.}
+
+\item{adj}{A vector of strings, default = \code{c()}. Moderator variables to be summarized given as a character vector.}
+
+\item{split_div}{A list containing numeric vectors or a vector of integers that are summarized given as a string, default \code{= list()}. If default, it represents the strata variables are split by median or it is itself a categorical variable. If the element of list is a numeric vector, it represents the strata variables are split by custom values. And if the element of list is a vector of integers that are summarized given as a string, it represents the strata variables are split by quantile statistics.}
 
 \item{outformat}{\code{1} or \code{2} or \code{3} or \code{4}, default \code{= 4}. Output format.}
 
@@ -63,14 +63,14 @@ pbc_full <- data.frame(pbc_full,'albumin_2' = albumin_2)
 
 ## General linear regression:
 table3(x = 'albumin_2', y = 'bili',
-       adj = adj_pbc, data = pbc_full,
+       adj = c(), data = pbc_full,
        split_var = c('age','alk.phos','ast','trt'), split_div = list(),
        outformat = 1)
 
 ## Logistic regression:
 table3(x = 'albumin_2', y = 'status',
        adj = adj_pbc, data = pbc_full,
-       split_var = c('age','alk.phos','ast','trt'), split_div = list(c(45)),
+       split_var = c('age','alk.phos','ast','trt'), split_div = list(c('2','3'),c('3')),
        outformat = 2,method = 'logistic')
 
 ## Cox proportional hazards regression:

@@ -2,14 +2,14 @@
 #' @description Draw smooth curves. The four regression methods include general linear regression, logistic regression, conditional logistic regression and cox proportional hazards regression.
 #' @param x A string. The independent variable to be summarized given as a string.
 #' @param y A string. The dependent variable to be summarized given as a string.
+#' @param data A data frame in which these variables exist.
 #' @param y_time A string. The survival time variable to be summarized given as a string.
-#' @param adj A vector of strings. Moderator variables to be summarized given as a character vector.
-#' @param fx Bool, default \code{= FALSE}.
 #' @param strata A string. The paired variable to be summarized given as a string.
+#' @param adj A vector of strings, default = \code{c()}. Moderator variables to be summarized given as a character vector.
+#' @param fx Bool, default \code{= FALSE}.
 #' @param k A vector of integers, default \code{= c()}. Degree of freedom, It only works when \code{fx = TRUE}.
 #' @param split_var A string, default \code{= NULL}. The split variables to be summarized given as a string.
 #' @param div A numeric vector, default \code{= c()}. It only works when split_var is a continuous variable.
-#' @param data A data frame in which these variables exist.
 #'
 #' @return An object about smooth curve.
 #' @export
@@ -70,8 +70,8 @@
 #'                     data = pbc_full)
 #' termplot(gam,term =c(1),col.term ="black",col.se = "black",se=TRUE,rug=FALSE)
 
-smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
-                       split_var=NULL,div=c(),data){
+smooth_curve<-function(x,y,data,y_time=NULL,strata=NULL,adj=c(),fx=FALSE,k=c(),
+                       split_var=NULL,div=c()){
   if(is.null(strata)){
     if(is.null(k)){
       if(is.null(split_var)){
@@ -79,7 +79,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
         if(is.factor(yy)){
           if(is.null(y_time)){
             adjj<-setdiff(adj, c(x, y))
-            if(is.null(adjj)){
+            if(length(adjj)==0){
               formula_logit<-stats::as.formula(paste0(y, ' ~ s(', x, ')'))
             } else {
               formula_logit<-stats::as.formula(paste0(y, ' ~ s(', x, ')', ' + ',
@@ -89,7 +89,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
           }
           else{
             adjj<-setdiff(adj, c(x,y_time,y))
-            if(is.null(adjj)){
+            if(length(adjj)==0){
               formula_cox<-stats::as.formula(paste0('Surv(',y_time,' , as.numeric(',y,')) ~ ', 'pspline(',x,')'))
             }else{
               formula_cox<-stats::as.formula(paste0('Surv(',y_time,' , as.numeric(',y,')) ~ ','pspline(', x, ')',' + ', paste(adjj, collapse = ' + ')))
@@ -99,7 +99,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
         }
         else{
           adjj<-setdiff(adj, c(x, y))
-          if(is.null(adjj)){
+          if(length(adjj)==0){
             formula_logit<-stats::as.formula(paste0(y, ' ~ s(', x, ')'))
             formula_logitcu<-stats::as.formula(paste0(y, ' ~ s(', x, ')'))
           } else {
@@ -134,7 +134,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
           if(is.factor(yy)){
             if(is.null(y_time)){
               adjj<-setdiff(adj, c(x, y,split_var))
-              if(is.null(adjj)){
+              if(length(adjj)==0){
                 formula_logit<-stats::as.formula(paste0(y, ' ~ s(', x, ')'))
               } else {
                 formula_logit<-stats::as.formula(paste0(y, ' ~ s(', x, ')', ' + ',
@@ -144,7 +144,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
             }
             else{
               adjj<-setdiff(adj, c(x,y_time,y,split_var))
-              if(is.null(adjj)){
+              if(length(adjj)==0){
                 formula_cox<-stats::as.formula(paste0('Surv(',y_time,' , as.numeric(',y,')) ~ ', 'pspline(',x,')'))
               }else{
                 formula_cox<-stats::as.formula(paste0('Surv(',y_time,' , as.numeric(',y,')) ~ ','pspline(', x, ')',' + ', paste(adjj, collapse = ' + ')))
@@ -154,7 +154,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
           }
           else{
             adjj<-setdiff(adj, c(x, y,split_var))
-            if(is.null(adjj)){
+            if(length(adjj)==0){
               formula_logit<-stats::as.formula(paste0(y, ' ~ s(', x, ')'))
               formula_logitcu<-stats::as.formula(paste0(y, ' ~ s(', x, ')'))
             } else {
@@ -177,7 +177,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
           if(is.factor(yy)){
             if(is.null(y_time)){
               adjj<-setdiff(adj, c(x, y))
-              if(is.null(adjj)){
+              if(length(adjj)==0){
                 formula_logit<-stats::as.formula(paste0( y, ' ~ s(', x, ',fx = ', fx,  ',k =', k[i], ')'))
               } else {
                 formula_logit<-stats::as.formula(paste0(y, ' ~ s(', x, ',fx = ', fx,  ',k =', k[i], ')', ' + ',
@@ -187,7 +187,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
             }
             else{
               adjj<-setdiff(adj, c(x,y_time,y))
-              if(is.null(adjj)){
+              if(length(adjj)==0){
                 formula_cox<-stats::as.formula(paste0('Surv(',y_time,' , as.numeric(',y,')) ~ ', 'pspline(', x,',df =', k[i], ')'))
               }else{
                 formula_cox<-stats::as.formula(paste0('Surv(',y_time,' , as.numeric(',y,')) ~ ','pspline(', x,',df =', k[i], ')', '+', paste(adjj, collapse = ' + ')))
@@ -197,7 +197,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
           }
           else{
             adjj<-setdiff(adj, c(x, y))
-            if(is.null(adjj)){
+            if(length(adjj)==0){
               formula_logit<-stats::as.formula(paste0(y, ' ~ s(', x, ',fx = ', fx,  ', k =', k[i],')'))
               formula_logitcu<-stats::as.formula(paste0(y, ' ~ s(', x, ',fx = ', fx,  ', k =', k[i],')'))
             } else {
@@ -233,7 +233,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
           if(is.factor(yy)){
             if(is.null(y_time)){
               adjj<-setdiff(adj, c(x, y,split_var))
-              if(is.null(adjj)){
+              if(length(adjj)==0){
                 formula_logit<-stats::as.formula(paste0(y, ' ~ s(', x, ',fx = ', fx,  ', k =', k[i],')'))
               } else {
                 formula_logit<-stats::as.formula(paste0(y, ' ~ s(', x, ',fx = ', fx,  ', k =', k[i],')', '+',
@@ -243,7 +243,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
             }
             else{
               adjj<-setdiff(adj, c(x,y_time,y,split_var))
-              if(is.null(adjj)){
+              if(length(adjj)==0){
                 formula_cox<-stats::as.formula(paste0('Surv(',y_time,' , as.numeric(',y,')) ~ ', 'pspline(',x,',df =', k[i], ')'))
               }else{
                 formula_cox<-stats::as.formula(paste0('Surv(',y_time,' , as.numeric(',y,')) ~ ','pspline(', x, ',df =', k[i], ')', '+', paste(adjj, collapse = ' + ')))
@@ -253,7 +253,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
           }
           else{
             adjj<-setdiff(adj, c(x, y,split_var))
-            if(is.null(adjj)){
+            if(length(adjj)==0){
               formula_logit<-stats::as.formula(paste0(y, ' ~ s(', x, ',fx = ', fx,  ', k =', k[i], ')'))
               formula_logitcu<-stats::as.formula(paste0(y, ' ~ s(', x, ',fx = ', fx,  ', k =', k[i], ')'))
             } else {
@@ -275,7 +275,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
       yy<-data[,y]
       if(is.null(y_time)){
         adjj<-setdiff(adj, c(x, y))
-        if(is.null(adjj)){
+        if(length(adjj)==0){
           formula_logit<-stats::as.formula(paste0(y, ' ~ s(', x, ')','+','strata(',strata,')'))
         } else {
           formula_logit<-stats::as.formula(paste0(y, ' ~ s(', x, ')', '+','strata(',strata,')','+',
@@ -285,7 +285,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
       }
       else{
         adjj<-setdiff(adj, c(x,y_time,y))
-        if(is.null(adjj)){
+        if(length(adjj)==0){
           formula_cox<-stats::as.formula(paste0('Surv(',y_time,' , as.numeric(',y,')) ~ ', 'pspline(',x,')','+','strata(',strata,')'))
         }else{
           formula_cox<-stats::as.formula(paste0('Surv(',y_time,' , as.numeric(',y,')) ~ ','pspline(', x, ')','+','strata(',strata,')','+', paste(adjj, collapse = ' + ')))
@@ -299,7 +299,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
       for(i in 1:length(k)){
         if(is.null(y_time)){
           adjj<-setdiff(adj, c(x, y))
-          if(is.null(adjj)){
+          if(length(adjj)==0){
             formula_logit<-stats::as.formula(paste0( y, ' ~ s(', x, ',fx = ', fx,  ',k =', k[i], ')','+','strata(',strata,')'))
           } else {
             formula_logit<-stats::as.formula(paste0(y, ' ~ s(', x, ',fx = ', fx,  ',k =', k[i], ')', '+','strata(',strata,')','+',
@@ -309,7 +309,7 @@ smooth_curve<-function(x,y,y_time=NULL,adj=NULL,fx=FALSE,strata=NULL,k=c(),
         }
         else{
           adjj<-setdiff(adj, c(x,y_time,y))
-          if(is.null(adjj)){
+          if(length(adjj)==0){
             formula_cox<-stats::as.formula(paste0('Surv(',y_time,' , as.numeric(',y,')) ~ ', 'pspline(', x,',df =', k[i], ')','+','strata(',strata,')'))
           }else{
             formula_cox<-stats::as.formula(paste0('Surv(',y_time,' , as.numeric(',y,')) ~ ','pspline(', x,',df =', k[i], ')', '+','strata(',strata,')','+', paste(adjj, collapse = ' + ')))

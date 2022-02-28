@@ -7,14 +7,14 @@
 smooth_curve(
   x,
   y,
+  data,
   y_time = NULL,
-  adj = NULL,
-  fx = FALSE,
   strata = NULL,
+  adj = c(),
+  fx = FALSE,
   k = c(),
   split_var = NULL,
-  div = c(),
-  data
+  div = c()
 )
 }
 \arguments{
@@ -22,21 +22,21 @@ smooth_curve(
 
 \item{y}{A string. The dependent variable to be summarized given as a string.}
 
+\item{data}{A data frame in which these variables exist.}
+
 \item{y_time}{A string. The survival time variable to be summarized given as a string.}
 
-\item{adj}{A vector of strings. Moderator variables to be summarized given as a character vector.}
+\item{strata}{A string. The paired variable to be summarized given as a string.}
+
+\item{adj}{A vector of strings, default = \code{c()}. Moderator variables to be summarized given as a character vector.}
 
 \item{fx}{Bool, default \code{= FALSE}.}
-
-\item{strata}{A string. The paired variable to be summarized given as a string.}
 
 \item{k}{A vector of integers, default \code{= c()}. Degree of freedom, It only works when \code{fx = TRUE}.}
 
 \item{split_var}{A string, default \code{= NULL}. The split variables to be summarized given as a string.}
 
 \item{div}{A numeric vector, default \code{= c()}. It only works when split_var is a continuous variable.}
-
-\item{data}{A data frame in which these variables exist.}
 }
 \value{
 An object about smooth curve.

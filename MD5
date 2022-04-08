@@ -1,4 +1,4 @@
-3a680f05d551c712dc07727c5bd8e129 *DESCRIPTION
+006ac2e6e102e5de581b0d764f71fe4c *DESCRIPTION
 b39f8a26919ab5543e2ae04c390b9da8 *NAMESPACE
 79668a279d550d995ba5a700846013f0 *R/div_custom.R
 bb26e1dd7b7f5679a6d1cc38de77eabf *R/div_quantile.R
@@ -8,7 +8,7 @@ bb26e1dd7b7f5679a6d1cc38de77eabf *R/div_quantile.R
 34716f2c4aedf563658e1d459f8d6d50 *R/table2.R
 ae7750d45f14eeff0959728e867c8e42 *R/table2_fun.R
 80d914057edb89469aae38ab71b8cfbe *R/table3.R
-3de1d18e4a8f4335f774dc533652b19b *R/table3_fun.R
+542a0344d4149a87726739f4c8931b45 *R/table3_fun.R
 0a6c9eeb87292d8b0b053b4a8bdddacd *man/div_custom.Rd
 51876e62cb3d405d18593545299ccb13 *man/div_quantile.Rd
 a351116f8f7e86519ed3870e47542eb9 *man/ensure_factor.Rd

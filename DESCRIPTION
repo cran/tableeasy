@@ -1,6 +1,6 @@
 Package: tableeasy
 Title: Tables of Clinical Study
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: 
     c(person(given = "Jian Hang",
            family = "Zheng",
@@ -15,9 +15,9 @@ Encoding: UTF-8
 RoxygenNote: 7.1.1
 Imports: survival, stats, lmtest, mgcv, nortest, tableone
 NeedsCompilation: no
-Packaged: 2022-02-28 06:49:16 UTC; mac
+Packaged: 2022-04-08 01:04:00 UTC; mac
 Author: Jian Hang Zheng [aut, cre],
   Yong Qi Chen [aut]
 Maintainer: Jian Hang Zheng <1040854241@qq.com>
 Repository: CRAN
-Date/Publication: 2022-02-28 09:30:05 UTC
+Date/Publication: 2022-04-08 02:40:02 UTC

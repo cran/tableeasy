@@ -238,7 +238,7 @@ logistic_table3<-function(x,y,split_var,adj,data,div=c(),totalcount=T){
       OR_estimate<-exp(model$coefficients[j, 1])
       OR_lowerCI<-exp(model$coefficients[j, 1] + stats::qnorm(0.025)*model$coefficients[j, 2])
       OR_upperCI<-exp(model$coefficients[j, 1] + stats::qnorm(0.975)*model$coefficients[j, 2])
-      p_value<-exp(model$coefficients[j, 4])
+      p_value<-model$coefficients[j, 4]
       #output data frame
       output_data[,paste('OR_estimate_',j,sep = '')]<-round(OR_estimate,2)
       output_data[,paste('OR_lowerCI_',j,sep = '')]<-round(OR_lowerCI,2)
